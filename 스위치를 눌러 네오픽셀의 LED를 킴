@@ -1,0 +1,28 @@
+from machine import Pin
+from neopixel import NeoPixel
+from time import sleep
+
+switch = Pin(27, Pin.IN, Pin.PULL_UP)
+np = NeoPixel(Pin(14, Pin.OUT), 12)
+
+led_index = 0
+
+while True:
+    state = switch.value()   # 스위치 값을 state라는 변수로 지정            
+    if state == 0: #눌렀을때 이거  0이 누른상태임
+        if led_index < 12:
+            np[led_index] = (255, 0, 0)
+            np.write()
+            print(led_index + 1,"번째 LED를 켰습니다")  # 처음이 0이여서 +1 없이하면 1을 출력해야하는 0을 출력하기에 +1을 했음)
+            led_index += 1
+            if led_index == 12:
+                print("모든 LED를 다 켰습니다 , 한번 더 눌러서 초기화 하십시오")
+            
+    
+        else:
+            print("초기화 성공")
+            np.fill((0, 0, 0))
+            np.write()
+            led_index = 0
+
+        sleep(0.3)
