@@ -1,0 +1,32 @@
+from machine import Pin, SPI
+from ili9225 import ILI9225 
+import utime
+
+# SPI 설정 (기존에 성공하셨던 핀 번호 그대로입니다)
+spi = SPI(2, baudrate=20000000, polarity=0, phase=0, sck=Pin(18), mosi=Pin(23))
+lcd = ILI9225(spi, ss_pin=5, rs_pin=2, rst_pin=4)
+
+def draw_hi_force(lcd):
+    # 화면 전체를 검정색으로 초기화
+    lcd.clear(0x000000)
+    
+    # 'H' 그리기 (세로줄 2개, 가로줄 1개)
+    # fill_rect(x, y, 너비, 높이, 색상)
+    lcd.fill_rect(0, 60, 10, 60, 0xFFFFFF)  # 왼쪽 기둥
+    lcd.fill_rect(80, 60, 10, 60, 0xFFFFFF)  # 오른쪽 기둥
+    lcd.fill_rect(40, 85, 40, 10, 0xFFFFFF)  # 가운데 다리
+    
+    # 'I' 그리기 (가운데 기둥 하나)
+    lcd.fill_rect(110, 60, 10, 60, 0xFFFFFF)
+    
+    print("화면에 강제로 HI를 출력했습니다!")
+
+try:
+    draw_hi_force(lcd)
+    
+    # 아래에 빨간색 선 하나를 그어서 방향을 확인해봅시다.
+    # (x=20, y=140) 위치에 가로 130, 높이 5인 빨간 막대
+    lcd.fill_rect(20, 140, 130, 5, 0xFF0000) 
+    
+except Exception as e:
+    print("에러 발생:", e)
