@@ -1,0 +1,3 @@
+#LCD 사용전 필독
+#필요 쟤료:  esp32  + 확장보드  ,  ili9225 LCD 모델  ,  SD 카드 , 암암 핀 대량 ,  esp32와 pc를 연결하기 위한 포트선
+#제작 환경:  thonny를 사용함 ,  micropython을 사용함 
