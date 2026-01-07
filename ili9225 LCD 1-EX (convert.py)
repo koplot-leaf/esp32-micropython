@@ -1,0 +1,37 @@
+#비주얼 스튜디오를 사용해주세요 파이썬으로 그리고  pip install pillow 설치해야함
+
+from PIL import Image
+import struct
+import os
+
+# --- 설정 부분 (여기만 정확하면 됩니다) ---
+input_file = 'real_test.jpg.webp'  # 익스플로러에 보이는 이름 그대로!
+output_file = 'image.bin' 
+# -------------------------------------
+
+def convert_now():
+    try:
+        # 1. 사진 열기 (Pillow는 webp도 지원합니다!)
+        img = Image.open(input_file)
+        print(f"파일을 찾았습니다: {input_file}")
+        
+        # 2. 강제로 176x220 크기로 맞추기
+        img = img.resize((176, 220), Image.Resampling.LANCZOS)
+        img = img.convert('RGB')
+        
+        # 3. 데이터 변환 및 저장
+        with open(output_file, 'wb') as f:
+            for y in range(220):
+                for x in range(176):
+                    r, g, b = img.getpixel((x, y))
+                    # RGB888 -> RGB565 변환
+                    rgb = ((r & 0xF8) << 8) | ((g & 0xFC) << 3) | (b >> 3)
+                    f.write(struct.pack('>H', rgb))
+                    
+        print(f"--- [대성공!] '{output_file}' 파일이 생성되었습니다. ---")
+        
+    except Exception as e:
+        print(f"에러 발생: {e}")
+        print("팁: 왼쪽 창에 파일 이름이 'real_test.jpg.webp'가 맞는지 다시 확인해보세요!")
+
+convert_now()
