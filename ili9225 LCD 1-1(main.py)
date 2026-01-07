@@ -1,3 +1,7 @@
+#이 코드는 esp32와 마이크로 파이썬을 활용하였고 thonny를 사용했습니다
+#이 파일은 글자 hi가 아닌 도형으로 HI를 구현하는 코드입니다
+
+
 from machine import Pin, SPI
 from ili9225 import ILI9225 
 import utime
@@ -19,7 +23,7 @@ def draw_hi_force(lcd):
     # 'I' 그리기 (가운데 기둥 하나)
     lcd.fill_rect(110, 60, 10, 60, 0xFFFFFF)
     
-    print("화면에 강제로 HI를 출력했습니다!")
+    print("출력 성공")
 
 try:
     draw_hi_force(lcd)
