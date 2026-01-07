@@ -1,3 +1,14 @@
+#이 코드는 레딧에서 가져온 esp32 를 사용하고 마이크로 파이썬을 사용하고 thonny를 사용하는 가정하에
+#ili9225(LCD)를 제어할수 있게해주는 라이브러리 입니다.
+#thonny에 라이브러리 검색창에는 ili9225가 없습니다. 그래서 다운을 받고
+#thonny 로 실행 시킨뒤 파일 -> ~~(으로)저장 ---> micropython 장치 ---> 이름을 ili9225.py 로 지정하고 사용합니다
+
+#127번 라인은 글자의 상하 좌우 반대와 글자의 형태를 다루는 줄입니다(중요함)
+#rotation은 0~3까지 있습니다. 각 번호를 입력하고 저장하고 main.py에서 실행 시키면 이 ili9225.py의 변경 사항이 그대로 저장되어 출력됩니다
+
+
+
+
 from machine import Pin, SPI
 from micropython import const
 import utime
