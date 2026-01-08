@@ -1,0 +1,44 @@
+#이 코드는 별도의 라이브러리를 깔아야함 왼쪽 도구 패키지 관리에서 'sdcard' 검색후 설치
+#sd카드 속 bin 파일을 한픽셀 한줄씩 출력함
+
+
+import os
+from machine import Pin, SPI
+from ili9225 import ILI9225
+import sdcard
+
+# 1. LCD 설정 (기존에 쓰던 설정)
+spi_lcd = SPI(2, baudrate=20000000, sck=Pin(18), mosi=Pin(23))
+lcd = ILI9225(spi_lcd, ss_pin=5, rs_pin=2, rst_pin=4)
+
+# 2. SD 카드 설정 (새로 연결한 14, 13, 12, 15번 핀)
+try:
+    # HSPI 포트(SPI 1) 사용
+    spi_sd = SPI(1, baudrate=10000000, sck=Pin(14), mosi=Pin(13), miso=Pin(12))
+    sd = sdcard.SDCard(spi_sd, Pin(15))
+    os.mount(sd, '/sd')
+    print("SD 카드 인식 성공!")
+    print("파일 목록:", os.listdir('/sd')) # image.bin이 보이는지 확인
+except Exception as e:
+    print("SD 카드 인식 실패:", e)
+
+# 3. 사진 출력 함수
+def draw_image(path):
+    try:
+        with open(path, 'rb') as f:
+            print("사진을 그리는 중... (점 찍기 방식)")
+            for y in range(220):
+                row_data = f.read(352)
+                if not row_data: break
+                
+                for x in range(176):
+                    color = (row_data[x*2] << 8) | row_data[x*2 + 1]
+                    # x, y 위치에 1x1 크기의 사각형을 그립니다.
+                    lcd.fill_rect(x, y, 1, 1, color)
+            print("출력 완료!")
+    except Exception as e:
+        print("에러 발생:", e)
+
+# 실행!
+lcd.clear(0x0000) # 화면 검정색으로 초기화
+draw_image('/sd/image.bin')
