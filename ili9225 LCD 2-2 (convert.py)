@@ -1,4 +1,10 @@
 #비주얼 스튜디오를 사용해주세요 파이썬으로 그리고  pip install pillow 설치해야함
+#단계 1 왼쪽  explorer 창에 "convert.py" 코드창 을 만든다
+#단계 2 원하는 사진을 구하여 사진이름은 real_test.jpg.webp 로 바꾼다 혹은 A.webp 라고 하고 아래 인풋문 파일도 A.webp라고 하면 됨 그후 바탕화면이나 파일에 저장
+#단게 3 다운로드 한 파일을 잡아서 파이썬 explorer 창으로 옮긴다. 잘 됬을경우 : 아이콘은 보라색 사진으로 나오고 누르면 사진이 보임  , 잘 안된경우 : 사진을 누르니 에러가 남  ,  원인: webp를 붙여야함  jpg는 아님
+#단계 4 왼쪽 이미지 이름과 convert.py쏙 인풋 파일의 이름이 같을 경우 실행 시키면 explorer창에 bin 파일이 생김
+#단계 5 그 bin 파일을 SD카드 가 담긴 USB 파일에 넣는다   +  USB를 포맷시킨 상태로 한다 . 포맷 방법: USB 드라이브 우클릭 우 포맷 클릭 
+#단계 6 bin 파일이 담긴 sd카드를 usb에서 뽑아 ili9225 뒷면에 삽입 한다
 
 from PIL import Image
 import struct
