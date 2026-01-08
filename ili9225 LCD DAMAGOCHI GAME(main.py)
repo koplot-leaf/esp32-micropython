@@ -1,0 +1,176 @@
+#사용한 라이브러리는 ili9225.py , font8x8.py 를 사용함
+#조이스틱과 3핀 버튼을 사용함 
+#게임 설멸: 다마고치 류 게임   첫 실행시 고양이의 이름을 고를수 있음
+#그 후 가운데 고양이가 나옴  그리고 wash feed play 이 새가지 선택지를 고를수 있음 고양이 한테 주어진 행동갯수는9 개임
+#만약 wash만 9번 하면 배드 엔딩이 나오고 feed 도 play 도 굿 엔딩을 보기 위하면 이 3가지를 균등하게 3번씩 해줘야함
+#게임이 끝난후 조이스틱을 누르면 재시작함
+
+
+
+
+import time
+from machine import Pin, ADC, SPI
+from ili9225 import ILI9225
+
+# --- 1. LCD 및 입력 설정 ---
+spi_lcd = SPI(2, baudrate=40000000, sck=Pin(18), mosi=Pin(23))
+lcd = ILI9225(spi_lcd, ss_pin=5, rs_pin=2, rst_pin=4)
+
+vx = ADC(Pin(34))
+vy = ADC(Pin(35))
+vx.atten(ADC.ATTN_11DB)
+vy.atten(ADC.ATTN_11DB)
+btn_red = Pin(25, Pin.IN)
+btn_sw = Pin(32, Pin.IN, Pin.PULL_UP)
+
+# --- 2. 폰트 데이터 ---
+FONT = {
+    'A': [0x18, 0x3C, 0x66, 0x7E, 0x66, 0x66, 0x66], 'B': [0x7C, 0x66, 0x66, 0x7C, 0x66, 0x66, 0x7C],
+    'C': [0x3C, 0x66, 0x60, 0x60, 0x60, 0x66, 0x3C], 'D': [0x78, 0x6C, 0x66, 0x66, 0x66, 0x6C, 0x78],
+    'E': [0x7E, 0x60, 0x60, 0x78, 0x60, 0x60, 0x7E], 'F': [0x7E, 0x60, 0x60, 0x78, 0x60, 0x60, 0x60],
+    'G': [0x3C, 0x66, 0x60, 0x6E, 0x66, 0x66, 0x3C], 'H': [0x66, 0x66, 0x66, 0x7E, 0x66, 0x66, 0x66],
+    'I': [0x3C, 0x18, 0x18, 0x18, 0x18, 0x18, 0x3C], 'J': [0x1E, 0x0C, 0x0C, 0x0C, 0x0C, 0x6C, 0x38],
+    'K': [0x66, 0x6C, 0x78, 0x70, 0x78, 0x6C, 0x66], 'L': [0x60, 0x60, 0x60, 0x60, 0x60, 0x60, 0x7E],
+    'M': [0x66, 0x7E, 0x7E, 0x66, 0x66, 0x66, 0x66], 'N': [0x66, 0x76, 0x7E, 0x7E, 0x6E, 0x66, 0x66],
+    'O': [0x3C, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C], 'P': [0x7C, 0x66, 0x66, 0x7C, 0x60, 0x60, 0x60],
+    'Q': [0x3C, 0x66, 0x66, 0x66, 0x6E, 0x3C, 0x0E], 'R': [0x7C, 0x66, 0x66, 0x7C, 0x78, 0x6C, 0x66],
+    'S': [0x3C, 0x66, 0x30, 0x18, 0x0C, 0x66, 0x3C], 'T': [0x7E, 0x5A, 0x18, 0x18, 0x18, 0x18, 0x18],
+    'U': [0x66, 0x66, 0x66, 0x66, 0x66, 0x66, 0x3C], 'V': [0x66, 0x66, 0x66, 0x66, 0x66, 0x3C, 0x18],
+    'W': [0x66, 0x66, 0x66, 0x66, 0x7E, 0x7E, 0x66], 'X': [0x66, 0x66, 0x3C, 0x18, 0x3C, 0x66, 0x66],
+    'Y': [0x66, 0x66, 0x66, 0x3C, 0x18, 0x18, 0x18], 'Z': [0x7E, 0x0C, 0x18, 0x30, 0x60, 0x60, 0x7E],
+    '0': [0x3C, 0x66, 0x6E, 0x7E, 0x76, 0x66, 0x3C], '1': [0x18, 0x38, 0x18, 0x18, 0x18, 0x18, 0x3C],
+    '2': [0x3C, 0x66, 0x06, 0x1C, 0x30, 0x66, 0x7E], '3': [0x3E, 0x06, 0x06, 0x1E, 0x06, 0x06, 0x3E],
+    '4': [0x0C, 0x1C, 0x2C, 0x4C, 0x7E, 0x0C, 0x0C], '5': [0x7E, 0x60, 0x7C, 0x06, 0x06, 0x66, 0x3C],
+    '6': [0x1C, 0x30, 0x60, 0x7C, 0x66, 0x66, 0x3C], '7': [0x7E, 0x06, 0x0C, 0x18, 0x30, 0x30, 0x30],
+    '8': [0x3C, 0x66, 0x66, 0x3C, 0x66, 0x66, 0x3C], '9': [0x3C, 0x66, 0x66, 0x3E, 0x06, 0x0C, 0x38],
+    ' ': [0x00]*7, ':': [0x00, 0x18, 0x18, 0x00, 0x18, 0x18, 0x00],
+    '>': [0x60, 0x30, 0x18, 0x0C, 0x18, 0x30, 0x60], '!': [0x18, 0x18, 0x18, 0x18, 0x00, 0x00, 0x18]
+}
+
+def draw_text_real(x, y, text, color, bg=0x0000):
+    for i, char in enumerate(text.upper()):
+        bitmap = FONT.get(char, [0x00]*7)
+        lcd.fill_rect(x + i*10, y, 8, 8, bg)
+        for row, byte in enumerate(bitmap):
+            for col in range(8):
+                if byte & (1 << (7 - col)):
+                    lcd.fill_rect(x + i*10 + col, y + row, 1, 1, color)
+
+def draw_cat_custom(expression="normal", color=0xFFFF):
+    lcd.fill_rect(68, 80, 40, 45, color) 
+    lcd.fill_rect(68, 70, 10, 10, color); lcd.fill_rect(98, 70, 10, 10, color) 
+    lcd.fill_rect(58, 100, 10, 5, color); lcd.fill_rect(108, 100, 10, 5, color)
+    lcd.fill_rect(55, 95, 10, 1, 0xFFFF); lcd.fill_rect(111, 95, 10, 1, 0xFFFF)
+    if expression == "happy":
+        lcd.fill_rect(75, 92, 5, 2, 0x0000); lcd.fill_rect(95, 92, 5, 2, 0x0000)
+        lcd.fill_rect(83, 105, 10, 5, 0xF800)
+    elif expression == "sad":
+        lcd.fill_rect(75, 95, 5, 1, 0x0000); lcd.fill_rect(95, 95, 5, 1, 0x0000)
+        lcd.fill_rect(83, 105, 10, 1, 0x0000)
+    else:
+        lcd.fill_rect(75, 92, 5, 5, 0x0000); lcd.fill_rect(95, 92, 5, 5, 0x0000)
+        lcd.fill_rect(83, 105, 10, 2, 0xF800)
+
+# --- 3. 메인 게임 루프 함수 ---
+def run_game():
+    # 변수 초기화
+    names = ["LEXI", "JAEYEE", "JINSUNG", "GUNWOO", "JAEHAN","NAMJUN","TAEJUN","GUBUN","DOGI","COIN"]
+    sel_idx = 0
+    pet_name = ""
+    actions = 9
+    f, w, p = 0, 0, 0
+    menu = 0
+
+    lcd.clear(0x0000)
+    draw_text_real(20, 20, "SELECT NAME", 0xFFFF)
+    
+    # [이름 선택] 초기 출력
+    for i, n in enumerate(names):
+        c = 0x07E0 if i == sel_idx else 0x8410
+        draw_text_real(60, 50 + (i*15), n, c)
+        if i == sel_idx: draw_text_real(45, 50 + (i*15), ">", 0x07E0)
+
+    # [이름 선택] 루프
+    while True:
+        vx_val = vx.read()
+        old_sel = sel_idx
+        moved = False
+        
+        if vx_val < 1000: 
+            sel_idx = (sel_idx - 1) % len(names); moved = True; time.sleep(0.15)
+        elif vx_val > 3000: 
+            sel_idx = (sel_idx + 1) % len(names); moved = True; time.sleep(0.15)
+            
+        if moved:
+            # 이전 항목 지우기/색변경, 새 항목 그리기 (전체 새로고침 X)
+            draw_text_real(45, 50 + (old_sel*15), " ", 0x0000)
+            draw_text_real(60, 50 + (old_sel*15), names[old_sel], 0x8410)
+            draw_text_real(45, 50 + (sel_idx*15), ">", 0x07E0)
+            draw_text_real(60, 50 + (sel_idx*15), names[sel_idx], 0x07E0)
+
+        if btn_red.value() == 1:
+            pet_name = names[sel_idx]
+            break
+        time.sleep(0.01)
+
+    # [메인 게임] 초기 설정
+    lcd.clear(0x0000)
+    draw_text_real(5, 5, "NAME:" + pet_name, 0xFFFF)
+    draw_text_real(5, 20, "LEFT:" + str(actions), 0xF800)
+    draw_cat_custom("normal")
+    
+    menus = ["FEED", "WASH", "PLAY"]
+    for i, m in enumerate(menus):
+        mc = 0xFFE0 if i == menu else 0x8410
+        draw_text_real(30, 150 + (i*20), m, mc)
+        if i == menu: draw_text_real(15, 150 + (i*20), ">", 0xFFE0)
+
+    # [메인 게임] 루프
+    while actions > 0:
+        vy_val = vy.read()
+        old_menu = menu
+        moved = False
+        
+        if vy_val < 1000: 
+            menu = (menu - 1) % 3; moved = True; time.sleep(0.15)
+        elif vy_val > 3000: 
+            menu = (menu + 1) % 3; moved = True; time.sleep(0.15)
+            
+        if moved:
+            # 메뉴 화살표와 색상 즉각 변경
+            draw_text_real(15, 150 + (old_menu*20), " ", 0x0000)
+            draw_text_real(30, 150 + (old_menu*20), menus[old_menu], 0x8410)
+            draw_text_real(15, 150 + (menu*20), ">", 0xFFE0)
+            draw_text_real(30, 150 + (menu*20), menus[menu], 0xFFE0)
+
+        if btn_red.value() == 1:
+            if menu == 0: f += 1
+            elif menu == 1: w += 1
+            elif menu == 2: p += 1
+            actions -= 1
+            # 상단 횟수만 업데이트
+            draw_text_real(5, 20, "LEFT:" + str(actions), 0xF800)
+            draw_text_real(75, 125, "OK!", 0x07E0)
+            time.sleep(0.3)
+            lcd.fill_rect(70, 120, 40, 20, 0x0000)
+
+        time.sleep(0.01)
+
+    # [엔딩 화면]
+    lcd.clear(0x0000)
+    if f == 3 and w == 3 and p == 3:
+        draw_text_real(20, 40, "PERFECT!", 0x07E0); draw_cat_custom("happy")
+    elif f >= 6:
+        draw_text_real(20, 40, "TOO FAT", 0xF800); draw_cat_custom("sad", 0xFFE0)
+    elif p >= 6:
+        draw_text_real(20, 40, "EXHAUSTED", 0xF800); draw_cat_custom("sad", 0x8410)
+    else:
+        draw_text_real(20, 40, "NORMAL END", 0xFFFF); draw_cat_custom("normal")
+
+    draw_text_real(10, 180, "PUSH SW TO RESET", 0xFFFF)
+    while True:
+        if btn_sw.value() == 0: run_game(); break
+        time.sleep(0.1)
+
+# 게임 실행
+run_game()
