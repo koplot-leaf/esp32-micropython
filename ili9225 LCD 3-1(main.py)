@@ -8,6 +8,7 @@
 
 
 
+
 import time
 from machine import Pin, ADC, SPI
 from ili9225 import ILI9225
@@ -165,7 +166,7 @@ def run_game():
     elif p >= 6:
         draw_text_real(20, 40, "EXHAUSTED", 0xF800); draw_cat_custom("sad", 0x8410)
     else:
-        draw_text_real(20, 40, "NORMAL END", 0xFFFF); draw_cat_custom("normal")
+        draw_text_real(20, 40, "HATE WATER", 0xFFFF); draw_cat_custom("sad")
 
     draw_text_real(10, 180, "PUSH SW TO RESET", 0xFFFF)
     while True:
