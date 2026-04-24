@@ -4,10 +4,21 @@
 #그 후 가운데 고양이가 나옴  그리고 wash feed play 이 새가지 선택지를 고를수 있음 고양이 한테 주어진 행동갯수는9 개임
 #만약 wash만 9번 하면 배드 엔딩이 나오고 feed 도 play 도 굿 엔딩을 보기 위하면 이 3가지를 균등하게 3번씩 해줘야함
 #게임이 끝난후 조이스틱을 누르면 재시작함
+-------------------------------------------------------------------------------------------------------------
 
+# Uses ili9225.py and font8x8.py
 
+# Uses a joystick and 3-pin buttons
 
+# Game Description: A Tamagotchi-style game. Upon first launch, you can choose a name for the cat.
 
+# Afterwards, a cat appears in the center. The cat is given 9 actions to choose from these three options: Wash, Feed, and Play.
+
+# If you only choose Wash 9 times, you will get a Bad Ending. To see the Good Ending, you must have the cat hold the food and play 3 times each.
+
+# It is said that the joystick was used after the game.
+
+------------------------------------------------------------------------------------------------------------------------------------------------
 
 import time
 from machine import Pin, ADC, SPI
